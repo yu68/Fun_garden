@@ -26,12 +26,15 @@ Vec2 startPoint;
 CollisionDetector detector; 
 
 int ballSize = 30;
-PImage hoops, ballImage, tip, shooter;
+PImage hoops, ballImage, tip, shooter, scoreboard;
 
-PFont myFont;
+PFont myFont,myFont2;
 
 int score = 0;
 int counter = 0;
+// point:20/10. duration for "+20/+10" effect
+int time, point; 
+int duration = 0;
 
 boolean dragging = false;
 
@@ -45,6 +48,7 @@ void setup() {
   hoops = loadImage("basketball_hoop.png");
   ballImage = loadImage("ball.png");
   shooter = loadImage("shoot.png");
+  scoreboard = loadImage("scoreBoard.png");
   imageMode=(CENTER);
   
   physics = new Physics(this, width, height, 0, -8, width*2, height*2, width, height, 100);
@@ -63,6 +67,9 @@ void setup() {
   //in_1 = physics.createRect(190, 166, 240, 170);
   //in_2 = physics.createRect(190, 311, 240, 315);
 
+  //font
+  myFont = createFont("SansSerif.plain", 45);
+  myFont2 = loadFont("SegoeScript-Bold-48.vlw");
   
   startPoint = new Vec2(650,height-250);
   
@@ -92,15 +99,18 @@ void setup() {
 void draw() {
   image(tip, 0, 0, width, height);
   image(hoops, 0, 0, width, height);
-  
+  image(scoreboard, 0, 0, width, height);
   fill(0);
-  text("Score: " + score, 40, 20);
-  text("Time: " + counter/60 + 's', 120, 20);
+  textFont(myFont);
+  fill(140, 163, 199);
+  text(score, 570, 100);
+  time = int(counter/60);
+  text(time, 680, 100);
   
   if (counter > 3000) {
-    background(255);
-    myFont = createFont("Georgia", 32);
+    background(255);    
     textFont(myFont);
+    fill(10, 10, 10);
     text("GAME OVER\nSpacebar to start over\nFinal Score: " + score, width/2-100,height/2-100);
     noLoop();
   }
@@ -112,17 +122,25 @@ void draw() {
   if (screenBallPos.x>190 && screenBallPos.x<240 && screenBallV.y>0) {
   if ((screenBallPos.y>=180-ballSize && screenBallPos.y<=180) || (screenBallPos.y<=320 && screenBallPos.y>=320-ballSize)) //score 
     {
-      println ("Made the shoot! v_y: "+screenBallV.y);
       if (screenBallPos.y<250){
-      score += 20; }
-      else { score +=10; }
+      score += 20;
+      point = 20; }
+      else { score +=10; text("+10",130,160); point = 10; }
       inSound.cue(0);
       inSound.play();
       ball.setPosition(physics.screenToWorld(new Vec2(650, height-250)));
-
+      duration = 120;
+      println ("Made the shoot! ");//v_y: "+screenBallV.y+"duration"+duration);
     }
   }
-  
+  // "+20/+10" effect
+  if (duration>0) {
+    
+    textFont(myFont2,35);
+    fill(228,60,23,2*duration);
+    text("+" + point, 30, 440-point*14+0.25*duration); 
+    duration--;
+  }
 }
   
 void mousePressed() {
